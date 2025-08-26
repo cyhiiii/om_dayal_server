@@ -12,19 +12,22 @@ const adminSchema = new Schema({
         type: String,
         required: true,
     },
-    email:{
+    email: {
         type: String,
         required: true,
         unique: true,
     },
-    mobile:{
+    mobile: {
         type: String,
         required: true,
         unique: true,
     },
-    name:{
+    name: {
         type: String,
         required: true,
+    },
+    refreshToken: {
+        type: String,
     }
 },
     { timestamps: true })
