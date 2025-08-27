@@ -119,7 +119,7 @@ const loginAdmin = asyncHandler(async (req, res) => {
         throw new ApiError(401, 'Wrong Credentials')
     }
 
-    const { accessToken, refreshToken } = await genrateAccessAndRefreshTokens(user._id)
+    const { accessToken, refreshToken } = await genrateAccessAndRefreshTokens(findAdmin._id)
 
 
     const options = {
