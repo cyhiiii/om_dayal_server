@@ -53,7 +53,7 @@ adminSchema.methods.genrateAccessToken = function () {
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
-            expiresIn: process.env.ACCESS_TOKEN_EXPIRY
+            expiresIn: process.env.EMPLOYEE_ACCESS_TOKEN_EXPIRY
         }
     )
 }

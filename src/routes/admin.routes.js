@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { adminLogout, loginAdmin } from "../controllers/admin.controllers.js";
+import { addEmployee, adminLogout, loginAdmin } from "../controllers/admin.controllers.js";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
+import { upload } from "../middlewares/multer.middlewares.js";
 
 const router = Router();
 
@@ -9,5 +10,14 @@ router.route('/login').post(loginAdmin)
 
 //Secured Routes
 router.route('/logout').post(verifyJWT, adminLogout)
+router.route('/addEmployee').post(verifyJWT,
+    upload.fields([
+        {name:'profileImage', maxCount:1},
+        {name:'adharCardFront', maxCount:1},
+        {name:'adharCardBack', maxCount:1},
+        {name:'highestQualification', maxCount:1}
+    ]),
+    addEmployee
+)
 
 export default router

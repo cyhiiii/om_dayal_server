@@ -6,7 +6,7 @@ const EmployeeDetailsSchema = new Schema({
         required: true,
         unique: true,
     },
-    profileImage:{
+    profileImage: {
         type: String,
     },
     employeeCode: {
@@ -14,44 +14,44 @@ const EmployeeDetailsSchema = new Schema({
         required: true,
         unique: true,
     },
-    name:{
+    name: {
         type: String,
         required: true,
     },
-    email:{
+    email: {
         type: String,
         required: true,
         unique: true,
     },
-    mobile:{
+    mobile: {
         type: String,
         required: true,
     },
-    alternateNumber:{
+    alternateNumber: {
         type: String,
     },
-    fatherName:{
+    fatherName: {
         type: String,
     },
-    address:{
+    address: {
         type: String,
     },
-    document_number:{
+    document_number: {
         type: String,
-        required
+        required: true,
     },
-    adharCardFront:{
-        type: String,
-    },
-    adharCardBack:{
+    adharCardFront: {
         type: String,
     },
-    highestQualification:{
+    adharCardBack: {
+        type: String,
+    },
+    highestQualification: {
         type: String,
     }
 },
-{
-    timestamps: true
-})
+    {
+        timestamps: true
+    })
 
 export const EmployeeDetails = mongoose.model('EmployeeDetails', EmployeeDetailsSchema)

@@ -1,7 +1,10 @@
 import { Admin } from '../models/admin.model.js';
+import { Employee } from '../models/employee.model.js';
+import { EmployeeDetails } from '../models/employeeDetails.model.js';
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
+import { uploadOnCloudinary } from '../utils/cloudinary.js';
 
 // const registerUser = asyncHandler(async (req, res) => {
 //     const { username,password,email,mobile,name } = req.body
@@ -169,7 +172,57 @@ const adminLogout = asyncHandler(async (req, res) => {
         )
 })
 
+const addEmployee = asyncHandler(async (req, res) => {
+    const { employeeUsername, employeeCode, name, email, mobile, alternateNumber, fatherName, address, document_number } = req.body
+
+    // if (
+    //     [employeeUsername, employeeCode, name, email, mobile, alternateNumber, fatherName, address, document_number]
+    // ) {
+    //     throw new ApiError(400, 'Required Inputs')
+    // }
+
+    const filesName = ["profileImage", "adharCardFront", "adharCardBack", "highestQualification"]
+
+    var filesToUpload = []
+
+    filesName.map((item) => {
+        const imgArr = req.files[item]
+
+        if (imgArr?.length > 0 && imgArr[0].path) {
+            filesToUpload.push(imgArr[0])
+        }
+    })
+
+    const existedEmployee = await Employee.findOne({ employeeUsername: employeeUsername })
+
+    if (existedEmployee) {
+        throw new ApiError(422, 'Employee Already Exists')
+    }
+
+    var filesToSaved = {profileImage:"",adharCardFront:"",adharCardBack:"",highestQualification:""}
+
+    filesToUpload.map(async(item)=>{
+        await uploadOnCloudinary(item.path).then((res)=>{
+            if (res?.url) {
+                console.log(item.fieldname)
+                filesToSaved[item.fieldname] = res.url
+            }else{
+                throw new ApiError(500,`Image Upload Failed With Error ${res.toSting()}`)
+            }
+        }).catch((err)=>{
+            throw new ApiError(500,`Image Upload Failed With Error ${err.toSting()}`)
+        })
+    })
+
+    console.log(filesToSaved)
+
+    // const addEmployeeToDatabase  = await EmployeeDetails.create({
+
+    // })
+})
+
 export {
     loginAdmin,
-    adminLogout
+    adminLogout,
+    addEmployee,
 }
