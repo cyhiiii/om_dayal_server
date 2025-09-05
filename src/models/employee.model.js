@@ -12,6 +12,10 @@ const employeeSchema = new Schema({
         type: String,
          required: true,
     },
+    employeeStatus: {
+        type: String,
+        required: true,
+    },
 },
     {
         timestamps: true

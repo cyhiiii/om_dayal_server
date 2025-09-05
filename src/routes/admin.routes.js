@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addEmployee, adminLogout, loginAdmin } from "../controllers/admin.controllers.js";
+import { addEmployee, adminLogout, benchEmployee, loginAdmin } from "../controllers/admin.controllers.js";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
 import { upload } from "../middlewares/multer.middlewares.js";
 
@@ -19,5 +19,6 @@ router.route('/addEmployee').post(verifyJWT,
     ]),
     addEmployee
 )
+router.route('/benchEmployee').post(verifyJWT,benchEmployee)
 
 export default router

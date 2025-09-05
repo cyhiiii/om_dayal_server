@@ -173,13 +173,13 @@ const adminLogout = asyncHandler(async (req, res) => {
 })
 
 const addEmployee = asyncHandler(async (req, res) => {
-    const { employeeUsername, employeeCode, name, email, mobile, alternateNumber, fatherName, address, document_number } = req.body
+    const { employeeUsername, employeeCode, name, email, mobile, alternateNumber, fatherName, address, document_number, password, employeeStatus } = req.body
 
-    // if (
-    //     [employeeUsername, employeeCode, name, email, mobile, alternateNumber, fatherName, address, document_number]
-    // ) {
-    //     throw new ApiError(400, 'Required Inputs')
-    // }
+    if (
+        [employeeUsername, employeeCode, name, email, mobile, alternateNumber, fatherName, address, document_number, password, employeeStatus].some((item) => item?.trim() === "")
+    ) {
+        throw new ApiError(400, 'Required Inputs')
+    }
 
     const filesName = ["profileImage", "adharCardFront", "adharCardBack", "highestQualification"]
 
@@ -199,30 +199,103 @@ const addEmployee = asyncHandler(async (req, res) => {
         throw new ApiError(422, 'Employee Already Exists')
     }
 
-    var filesToSaved = {profileImage:"",adharCardFront:"",adharCardBack:"",highestQualification:""}
+    var filesToSaved = { profileImage: "", adharCardFront: "", adharCardBack: "", highestQualification: "" }
 
-    filesToUpload.map(async(item)=>{
-        await uploadOnCloudinary(item.path).then((res)=>{
-            if (res?.url) {
-                console.log(item.fieldname)
-                filesToSaved[item.fieldname] = res.url
-            }else{
-                throw new ApiError(500,`Image Upload Failed With Error ${res.toSting()}`)
-            }
-        }).catch((err)=>{
-            throw new ApiError(500,`Image Upload Failed With Error ${err.toSting()}`)
-        })
+    for (const item of filesToUpload) {
+        await uploadOnCloudinary(item.path)
+            .then((response) => {
+                if (response?.secure_url) {
+                    filesToSaved[item.fieldname] = response.secure_url;
+                } else {
+                    throw new ApiError(500, `Image Upload Failed With Error ${response.toString()}`);
+                }
+            })
+            .catch((err) => {
+                throw new ApiError(500, `Image Upload Failed With Error ${err.toString()}`);
+            });
+    }
+
+    const addEmployeeToDatabase = await EmployeeDetails.create({
+        employeeUsername: employeeUsername,
+        employeeCode: employeeCode,
+        name: name,
+        email: email,
+        mobile: mobile,
+        alternateNumber: alternateNumber || null,
+        fatherName: fatherName,
+        address: address,
+        document_number: document_number,
+        profileImage: filesToSaved.profileImage || null,
+        adharCardFront: filesToSaved.adharCardFront || null,
+        adharCardBack: filesToSaved.adharCardBack || null,
+        highestQualification: filesToSaved.highestQualification || null,
+        employeeStatus: employeeStatus
     })
 
-    console.log(filesToSaved)
+    if (!addEmployeeToDatabase) {
+        throw new ApiError(500, 'Something Went Wrong')
+    }
 
-    // const addEmployeeToDatabase  = await EmployeeDetails.create({
+    const createLoginCredentials = await Employee.create({
+        employeeUsername: employeeUsername,
+        password: password,
+        employeeStatus: employeeStatus
+    })
 
-    // })
+    if (!createLoginCredentials) {
+        throw new ApiError(500, 'Something Went Wrong')
+    }
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, {}, 'Employee Added Successfully')
+        )
+})
+
+
+const benchEmployee = asyncHandler(async (req, res) => {
+    
+    const { employeeCode } = req.body
+
+    if (employeeCode?.trim() === "") {
+        throw new ApiError(400, 'Required Inputs')
+    }
+
+    const findEmployee = await EmployeeDetails.findOne({ employeeCode: employeeCode })
+
+    if (!findEmployee) {
+        throw new ApiError(404, 'Employee Not Found')
+    }
+
+    if (findEmployee.employeeStatus === "Bench") {
+        throw new ApiError(422, 'Employee Already On Bench')
+    }
+
+    const findLoginCredentials = await Employee.findOne({ employeeUsername: findEmployee.employeeUsername })
+
+    if (!findLoginCredentials) {
+        throw new ApiError(404, 'Employee Login Credentials Not Found')
+    }
+    
+    findLoginCredentials.employeeStatus = "Bench"
+
+    findEmployee.employeeStatus = "Bench"
+
+    await findEmployee.save()
+    await findLoginCredentials.save({ validateBeforeSave: false })
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, {}, 'Employee Bench Status Updated Successfully')
+        )
+
 })
 
 export {
     loginAdmin,
     adminLogout,
     addEmployee,
+    benchEmployee,
 }

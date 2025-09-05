@@ -48,7 +48,11 @@ const EmployeeDetailsSchema = new Schema({
     },
     highestQualification: {
         type: String,
-    }
+    },
+    employeeStatus: {
+        type: String,
+        required: true,
+    },
 },
     {
         timestamps: true
