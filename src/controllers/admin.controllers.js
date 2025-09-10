@@ -173,10 +173,10 @@ const adminLogout = asyncHandler(async (req, res) => {
 })
 
 const addEmployee = asyncHandler(async (req, res) => {
-    const { employeeUsername, employeeCode, name, email, mobile, alternateNumber, fatherName, address, document_number, password, employeeStatus } = req.body
+    const { employeeUsername, employeeCode, name, email, mobile, alternateNumber, fatherName, address, document_number, password, employeeStatus,dateOfJoin } = req.body
 
     if (
-        [employeeUsername, employeeCode, name, email, mobile, alternateNumber, fatherName, address, document_number, password, employeeStatus].some((item) => item?.trim() === "")
+        [employeeUsername, employeeCode, name, email, mobile, alternateNumber, fatherName, address, document_number, password, employeeStatus,dateOfJoin].some((item) => item?.trim() === "")
     ) {
         throw new ApiError(400, 'Required Inputs')
     }
@@ -229,7 +229,9 @@ const addEmployee = asyncHandler(async (req, res) => {
         adharCardFront: filesToSaved.adharCardFront || null,
         adharCardBack: filesToSaved.adharCardBack || null,
         highestQualification: filesToSaved.highestQualification || null,
-        employeeStatus: employeeStatus
+        employeeStatus: employeeStatus,
+        dateOfJoin:dateOfJoin,
+        dateOfLeave:null
     })
 
     if (!addEmployeeToDatabase) {
@@ -252,7 +254,6 @@ const addEmployee = asyncHandler(async (req, res) => {
             new ApiResponse(200, {}, 'Employee Added Successfully')
         )
 })
-
 
 const benchEmployee = asyncHandler(async (req, res) => {
     
@@ -293,9 +294,60 @@ const benchEmployee = asyncHandler(async (req, res) => {
 
 })
 
+const releaseEmployee = asyncHandler(async (req, res) => {
+
+    const { employeeCode,status,dateOfLeave } = req.body
+
+    if ([employeeCode,status,dateOfLeave].some((item) => item?.trim() === "")) {
+        throw new ApiError(400, 'Required Inputs')
+    }
+
+    const findEmployee = await EmployeeDetails.findOne({ employeeCode: employeeCode })
+
+    if (!findEmployee) {
+        throw new ApiError(404, 'Employee Not Found')
+    }
+
+    if (findEmployee.employeeStatus === "Released") {
+        throw new ApiError(422, 'Employee Already Released')
+    }
+
+    const releaseEmployeeStatus = await EmployeeDetails.findOneAndUpdate(
+        { employeeCode: employeeCode },
+        {
+            employeeStatus: status,
+            dateOfLeave:dateOfLeave
+        },
+        { new: true }
+    )
+
+     const findLoginCredentials = await Employee.findOne({ employeeUsername: findEmployee.employeeUsername })
+
+    if (!findLoginCredentials) {
+        throw new ApiError(404, 'Employee Login Credentials Not Found')
+    }
+
+    findLoginCredentials.employeeStatus = status
+
+    await findLoginCredentials.save({ validateBeforeSave: false })
+
+
+    if (!releaseEmployeeStatus) {
+        throw new ApiError(500, 'Something Went Wrong')
+    }
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, {}, 'Employee Released Successfully')
+        )
+})
+
 export {
     loginAdmin,
     adminLogout,
     addEmployee,
     benchEmployee,
+    releaseEmployee,
+    refreshAccessToken
 }
