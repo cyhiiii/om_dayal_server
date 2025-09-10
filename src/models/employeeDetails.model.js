@@ -53,11 +53,11 @@ const EmployeeDetailsSchema = new Schema({
         type: String,
         required: true,
     },
-    dateOfJoin:{
+    dateOfJoin: {
         type: Date,
         required: true
     },
-    dateOfLeave:{
+    dateOfLeave: {
         type: Date,
     }
 },

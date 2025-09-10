@@ -176,7 +176,7 @@ const addEmployee = asyncHandler(async (req, res) => {
     const { employeeUsername, employeeCode, name, email, mobile, alternateNumber, fatherName, address, document_number, password, employeeStatus, dateOfJoin } = req.body
 
     if (
-        [employeeUsername, employeeCode, name, email, mobile, alternateNumber, fatherName, address, document_number, password, employeeStatus, dateOfJoin].some((item) => item.trim() === "" || item === undefined)
+        [employeeUsername, employeeCode, name, email, mobile, alternateNumber, fatherName, address, document_number, password, dateOfJoin].some((item) => item.trim() === "" || item === undefined)
     ) {
         throw new ApiError(400, 'Required Inputs')
     }
