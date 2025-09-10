@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addEmployee, adminLogout, benchEmployee, loginAdmin, releaseEmployee } from "../controllers/admin.controllers.js";
+import { addEmployee, adminLogout, benchEmployee, loginAdmin, refreshAccessToken, releaseEmployee } from "../controllers/admin.controllers.js";
 import { verifyJWT } from "../middlewares/auth.middlewares.js";
 import { upload } from "../middlewares/multer.middlewares.js";
 
@@ -7,6 +7,7 @@ const router = Router();
 
 //router.route('/register').post(registerUser)
 router.route('/login').post(loginAdmin)
+router.route('/refreshAccessTokens').post(refreshAccessToken)
 
 //Secured Routes
 router.route('/logout').post(verifyJWT, adminLogout)
