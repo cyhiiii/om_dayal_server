@@ -173,10 +173,10 @@ const adminLogout = asyncHandler(async (req, res) => {
 })
 
 const addEmployee = asyncHandler(async (req, res) => {
-    const { employeeUsername, employeeCode, name, email, mobile, alternateNumber, fatherName, address, document_number, password, employeeStatus,dateOfJoin } = req.body
+    const { employeeUsername, employeeCode, name, email, mobile, alternateNumber, fatherName, address, document_number, password, employeeStatus, dateOfJoin } = req.body
 
     if (
-        [employeeUsername, employeeCode, name, email, mobile, alternateNumber, fatherName, address, document_number, password, employeeStatus,dateOfJoin].some((item) => item?.trim() === "")
+        [employeeUsername, employeeCode, name, email, mobile, alternateNumber, fatherName, address, document_number, password, employeeStatus, dateOfJoin].some((item) => item.trim() === "" || item === undefined)
     ) {
         throw new ApiError(400, 'Required Inputs')
     }
@@ -230,8 +230,8 @@ const addEmployee = asyncHandler(async (req, res) => {
         adharCardBack: filesToSaved.adharCardBack || null,
         highestQualification: filesToSaved.highestQualification || null,
         employeeStatus: employeeStatus,
-        dateOfJoin:dateOfJoin,
-        dateOfLeave:null
+        dateOfJoin: dateOfJoin,
+        dateOfLeave: null
     })
 
     if (!addEmployeeToDatabase) {
@@ -256,7 +256,7 @@ const addEmployee = asyncHandler(async (req, res) => {
 })
 
 const benchEmployee = asyncHandler(async (req, res) => {
-    
+
     const { employeeCode } = req.body
 
     if (employeeCode?.trim() === "") {
@@ -278,7 +278,7 @@ const benchEmployee = asyncHandler(async (req, res) => {
     if (!findLoginCredentials) {
         throw new ApiError(404, 'Employee Login Credentials Not Found')
     }
-    
+
     findLoginCredentials.employeeStatus = "Bench"
 
     findEmployee.employeeStatus = "Bench"
@@ -296,9 +296,9 @@ const benchEmployee = asyncHandler(async (req, res) => {
 
 const releaseEmployee = asyncHandler(async (req, res) => {
 
-    const { employeeCode,status,dateOfLeave } = req.body
+    const { employeeCode, status, dateOfLeave } = req.body
 
-    if ([employeeCode,status,dateOfLeave].some((item) => item?.trim() === "")) {
+    if ([employeeCode, status, dateOfLeave].some((item) => item?.trim() === "")) {
         throw new ApiError(400, 'Required Inputs')
     }
 
@@ -316,12 +316,12 @@ const releaseEmployee = asyncHandler(async (req, res) => {
         { employeeCode: employeeCode },
         {
             employeeStatus: status,
-            dateOfLeave:dateOfLeave
+            dateOfLeave: dateOfLeave
         },
         { new: true }
     )
 
-     const findLoginCredentials = await Employee.findOne({ employeeUsername: findEmployee.employeeUsername })
+    const findLoginCredentials = await Employee.findOne({ employeeUsername: findEmployee.employeeUsername })
 
     if (!findLoginCredentials) {
         throw new ApiError(404, 'Employee Login Credentials Not Found')
