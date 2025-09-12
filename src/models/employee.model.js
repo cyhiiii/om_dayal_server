@@ -1,21 +1,26 @@
 import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
+import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const employeeSchema = new Schema({
     employeeUsername: {
         type: String,
-         required: true,
+        required: true,
         unique: true,
     },
     password: {
         type: String,
-         required: true,
+        required: true,
     },
     employeeStatus: {
         type: String,
         required: true,
     },
+    passwordChange: {
+        type: Number,
+        default: 0
+    }
 },
     {
         timestamps: true
@@ -49,3 +54,4 @@ employeeSchema.methods.genrateAccessToken = function () {
 
 
 export const Employee = mongoose.model('Employee', employeeSchema)
+employeeSchema.plugin(mongooseAggregatePaginate)

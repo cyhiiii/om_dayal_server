@@ -343,11 +343,23 @@ const releaseEmployee = asyncHandler(async (req, res) => {
         )
 })
 
+const getEmployeesDetails = asyncHandler(async (req, res) => {
+
+    const getEmployee = await EmployeeDetails.find()
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, getEmployee, 'Employee Data')
+        )
+})
+
 export {
     loginAdmin,
     adminLogout,
     addEmployee,
     benchEmployee,
     releaseEmployee,
-    refreshAccessToken
+    refreshAccessToken,
+    getEmployeesDetails
 }

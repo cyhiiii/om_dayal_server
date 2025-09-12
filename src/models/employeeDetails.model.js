@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const EmployeeDetailsSchema = new Schema({
     employeeUsername: {
@@ -66,3 +67,4 @@ const EmployeeDetailsSchema = new Schema({
     })
 
 export const EmployeeDetails = mongoose.model('EmployeeDetails', EmployeeDetailsSchema)
+EmployeeDetailsSchema.plugin(mongooseAggregatePaginate)
