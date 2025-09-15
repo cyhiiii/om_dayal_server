@@ -193,7 +193,13 @@ const addEmployee = asyncHandler(async (req, res) => {
         }
     })
 
-    const existedEmployee = await Employee.findOne({ employeeUsername: employeeUsername })
+    const existedEmployee = await Employee.findOne({
+        $or: [
+            { employeeUsername: employeeUsername },
+            { employeeCode: employeeCode }
+        ]
+    });
+
 
     if (existedEmployee) {
         throw new ApiError(422, 'Employee Already Exists')
@@ -257,9 +263,9 @@ const addEmployee = asyncHandler(async (req, res) => {
 
 const benchEmployee = asyncHandler(async (req, res) => {
 
-    const { employeeCode } = req.body
+    const { employeeCode, employeeStatus } = req.body
 
-    if (employeeCode?.trim() === "") {
+    if (employeeCode?.trim() === "" || employeeStatus?.trim() === "") {
         throw new ApiError(400, 'Required Inputs')
     }
 
@@ -269,7 +275,7 @@ const benchEmployee = asyncHandler(async (req, res) => {
         throw new ApiError(404, 'Employee Not Found')
     }
 
-    if (findEmployee.employeeStatus === "Bench") {
+    if (findEmployee.employeeStatus === employeeStatus) {
         throw new ApiError(422, 'Employee Already On Bench')
     }
 
@@ -279,9 +285,9 @@ const benchEmployee = asyncHandler(async (req, res) => {
         throw new ApiError(404, 'Employee Login Credentials Not Found')
     }
 
-    findLoginCredentials.employeeStatus = "Bench"
+    findLoginCredentials.employeeStatus = employeeStatus
 
-    findEmployee.employeeStatus = "Bench"
+    findEmployee.employeeStatus = employeeStatus
 
     await findEmployee.save()
     await findLoginCredentials.save({ validateBeforeSave: false })
