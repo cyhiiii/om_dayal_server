@@ -20,8 +20,8 @@ router.route('/addEmployee').post(verifyJWT,
     ]),
     addEmployee
 )
-router.route('/benchEmployee').post(verifyJWT, benchEmployee)
-router.route('/releaseEmployee').post(verifyJWT, releaseEmployee)
+router.route('/benchEmployee').put(verifyJWT, benchEmployee)
+router.route('/releaseEmployee').delete(verifyJWT, releaseEmployee)
 router.route('/employeeDetails').get(verifyJWT, getEmployeesDetails)
 
 export default router
