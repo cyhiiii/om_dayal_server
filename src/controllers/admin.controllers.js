@@ -4,7 +4,7 @@ import { EmployeeDetails } from '../models/employeeDetails.model.js';
 import { ApiError } from '../utils/ApiError.js';
 import { ApiResponse } from '../utils/ApiResponse.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
-import { uploadOnCloudinary } from '../utils/cloudinary.js';
+import { removeFromCloudinary, uploadOnCloudinary } from '../utils/cloudinary.js';
 
 // const registerUser = asyncHandler(async (req, res) => {
 //     const { username,password,email,mobile,name } = req.body
@@ -360,6 +360,79 @@ const getEmployeesDetails = asyncHandler(async (req, res) => {
         )
 })
 
+const updateEmployeeDetails = asyncHandler(async (req, res) => {
+    const { employeeCode, name, email, mobile, alternateNumber, fatherName, address, document_number, employeeStatus,
+        employeeUsername } = req.body
+
+    if (
+        [name, email, mobile, alternateNumber, fatherName, address, document_number, employeeStatus].some((item) => item?.trim() === "")
+    ) {
+        throw new ApiError(400, 'Required Inputs')
+    }
+
+    const filesName = ["profileImage", "adharCardFront", "adharCardBack", "highestQualification"]
+
+    var filesToUpload = []
+
+    var filesToSaved = { profileImage: "", adharCardFront: "", adharCardBack: "", highestQualification: "" }
+
+    filesName.map((item) => {
+        const imgArr = req.files[item]
+
+        if (imgArr?.length > 0 && imgArr[0].path) {
+            filesToUpload.push(imgArr[0])
+        }
+    })
+
+    const findEmployee = await EmployeeDetails.findOne({ employeeCode: employeeCode , employeeUsername:employeeUsername })
+
+    if (!findEmployee) {
+        throw new ApiError(404, 'Employee Not Found')
+    }
+
+    for (const element of filesToUpload) {
+        await uploadOnCloudinary(element.path)
+            .then((response) => {
+                if (response?.secure_url) {
+                    filesToSaved[element.fieldname] = response.secure_url;
+                } else {
+                    throw new ApiError(500, `Image Upload Failed With Error ${response.toString()}`);
+                }
+            })
+            .catch((err) => {
+                throw new ApiError(500, `Image Upload Failed With Error ${err.toString()}`);
+            });
+    }
+
+    filesName.forEach(async(element) => {
+        if (filesToSaved[element] !== '') {
+            await removeFromCloudinary(findEmployee[element]).then(async (res) => {
+                if (res.result === 'ok') {
+                    findEmployee[element] = filesToSaved[element]
+                    await findEmployee.save()
+                }
+            }).catch((err) => {
+                throw new ApiError(500, 'Image Not Deleted')
+            })
+        }
+    });
+
+    findEmployee.name = name
+    findEmployee.email = email
+    findEmployee.mobile = mobile
+    findEmployee.alternateNumber = alternateNumber
+    findEmployee.fatherName = fatherName
+    findEmployee.address = address
+    findEmployee.document_number = document_number
+    await findEmployee.save()
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, {}, 'Employee Details Updated Successfully')
+        )
+})
+
 export {
     loginAdmin,
     adminLogout,
@@ -367,5 +440,6 @@ export {
     benchEmployee,
     releaseEmployee,
     refreshAccessToken,
-    getEmployeesDetails
+    getEmployeesDetails,
+    updateEmployeeDetails
 }

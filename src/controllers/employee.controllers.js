@@ -9,7 +9,7 @@ const genrateAccessAndTokens = async (userId) => {
         const employee = await Employee.findById(userId)
         const accessToken = employee.genrateAccessToken()
 
-        return { accessToken }
+        return accessToken 
 
     } catch (error) {
         throw new ApiError(500, "Something went wrong while generating refresh and access token")
@@ -17,7 +17,6 @@ const genrateAccessAndTokens = async (userId) => {
 }
 
 const loginEmployee = asyncHandler(async (req, res) => {
-
     const { employeeUsername, password } = req.body
 
     if (employeeUsername === '' || password === '') {
@@ -36,7 +35,7 @@ const loginEmployee = asyncHandler(async (req, res) => {
         throw new ApiError(401, 'Invalid Credentials')
     }
 
-    const { accessToken } = genrateAccessAndTokens(findUsername._id)
+    const  accessToken  = await genrateAccessAndTokens(findUsername._id)
 
     const options = {
         httpOnly: true,
@@ -47,7 +46,7 @@ const loginEmployee = asyncHandler(async (req, res) => {
         .status(200)
         .cookie("accessToken", accessToken, options)
         .json(
-            new ApiResponse(200, {}, "User logged In Successfully")
+            new ApiResponse(200, { accessToken }, "User logged In Successfully")
         )
 })
 

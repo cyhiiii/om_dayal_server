@@ -41,9 +41,7 @@ employeeSchema.methods.isPasswordCorrect = async function (password) {
 employeeSchema.methods.genrateAccessToken = function () {
     return jwt.sign(
         {
-            _id: this._id,
-            fullName: this.fullName,
-            email: this.email
+            _id: this._id
         },
         process.env.EMPLOYEE_ACCESS_TOKEN_SECRET,
         {
