@@ -1,56 +1,53 @@
 import mongoose, { Schema } from "mongoose";
+import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
-const LeadSchema = new Schema({
+const RequirementSchema = new Schema({
     leadID:{
         type: String,
         required: true
     },
-    email:{
+    requirementID:{
         type: String,
         required: true,
     },
-    mobile:{
+    employeeCode:{
         type: String,
         required: true,
     },
-    leadType:{
+    tutionPlace:{
         type: String,
         required: true,
     },
-    leadStatus:{
+    studentClass:{
         type: String,
         required: true,
     },
-    longitude:{
+    boards:{
         type: String,
         required: true,
     },
-    latitude:{
+    subject:{   
         type: String,
         required: true,
     },
-    address:{
+    sitting:{
         type: String,
         required: true,
     },
-    alternateNo:{
-        type: String,
-    },
-    leadDate:{
-        type: Date,
-        required: true,
-    },
-    leadSource:{
+    duration:{
         type: String,
         required: true,
     },
-    name:{
+    budget:{
+        type: String,
+        required: true,
+    },
+    genderPreference:{
         type: String,
         required: true,
     }
-},{
-    timestamps: true
+
 })
 
-
-export const Lead = mongoose.model('Lead', LeadSchema);
+export const Requirement = mongoose.model('Requirement', RequirementSchema);
+RequirementSchema.plugin(mongooseAggregatePaginate);

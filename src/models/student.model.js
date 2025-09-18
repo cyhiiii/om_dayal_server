@@ -1,50 +1,49 @@
 import mongoose, { Schema } from "mongoose";
+import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
-const LeadSchema = new Schema({
-    leadID:{
+const StudentSchema = new Schema({
+    studentID: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
-    email:{
+    name: {
         type: String,
         required: true,
     },
-    mobile:{
+    email: {
         type: String,
         required: true,
     },
-    leadType:{
+    address: {
         type: String,
         required: true,
     },
-    leadStatus:{
+    class: {
         type: String,
         required: true,
     },
-    longitude:{
+    boards: {
         type: String,
         required: true,
     },
-    latitude:{
+    subjects: {
+        type: [String],
+        required: true,
+    },
+    fatherName: {
         type: String,
         required: true,
     },
-    address:{
+    motherName: {
         type: String,
         required: true,
     },
-    alternateNo:{
-        type: String,
-    },
-    leadDate:{
-        type: Date,
-        required: true,
-    },
-    leadSource:{
+    parentContact: {
         type: String,
         required: true,
     },
-    name:{
+    alternateNumber:{
         type: String,
         required: true,
     }
@@ -52,5 +51,5 @@ const LeadSchema = new Schema({
     timestamps: true
 })
 
-
-export const Lead = mongoose.model('Lead', LeadSchema);
+StudentSchema.plugin(mongooseAggregatePaginate);
+export const Student = mongoose.model('Student', StudentSchema);
