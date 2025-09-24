@@ -1,54 +1,57 @@
 import mongoose, { Schema } from "mongoose";
 
 const LeadSchema = new Schema({
-    leadID:{
+    leadID: {
         type: String,
         required: true
     },
-    email:{
+    email: {
         type: String,
         required: true,
     },
-    mobile:{
+    employeeCode: {
+        type: String,
+    },
+    mobile: {
         type: String,
         required: true,
     },
-    leadType:{
+    leadType: {
         type: String,
         required: true,
     },
-    leadStatus:{
+    leadStatus: {
         type: String,
         required: true,
     },
-    longitude:{
+    longitude: {
         type: String,
         required: true,
     },
-    latitude:{
+    latitude: {
         type: String,
         required: true,
     },
-    address:{
+    address: {
         type: String,
         required: true,
     },
-    alternateNo:{
+    alternateNo: {
         type: String,
     },
-    leadDate:{
+    leadDate: {
         type: Date,
         required: true,
     },
-    leadSource:{
+    leadSource: {
         type: String,
         required: true,
     },
-    name:{
+    name: {
         type: String,
         required: true,
     }
-},{
+}, {
     timestamps: true
 })
 
