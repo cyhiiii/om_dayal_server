@@ -57,7 +57,7 @@ const createLead = asyncHandler(async (req, res) => {
 
 const allotLeads = asyncHandler(async (req, res) => {
     const { leadID, employeeCode } = req.body
-    
+
     if (leadID === '' || leadID === undefined || employeeCode === '' || employeeCode === undefined) {
         throw new ApiError(400, 'All fields are required')
     }
@@ -84,7 +84,7 @@ const allotLeads = asyncHandler(async (req, res) => {
     }
 
     const createRequirement = await Requirement.create({
-        leadID:leadID,
+        leadID: leadID,
         employeeCode: employeeCode,
         requirementID: requirementID,
         tutionPlace: '',
@@ -110,6 +110,9 @@ const allotLeads = asyncHandler(async (req, res) => {
         alternateNumber: findLead.alternateNo
     })
 
+    findLead.employeeCode = employeeCode
+    findLead.save()
+
     if (!createRequirement || !createStudent) {
         throw new ApiError(500, 'Allotment failed')
     }
@@ -122,26 +125,11 @@ const allotLeads = asyncHandler(async (req, res) => {
 })
 
 const postRequirement = asyncHandler(async (req, res) => {
-//Requirement Schema
-// tutionPlace
-// studentClass
-// sitting
-// duration
-// budget
-// genderPreference
 
-//Student Schema
-
-// class
-// boards
-// subjects
-// fatherName
-// motherName
-
-    const { leadID, employeeCode, tutionPlace, studentClass, boards, subject, sitting, duration, budget, genderPreference } = req.body
+    const { leadID, name, fatherName, motherName, email, mobile, alternateNo, address, tutionPlace, studentClass, boards, subject, sitting, duration, budget, genderPreference } = req.body
 
     if (
-        [leadID, employeeCode, tutionPlace, studentClass, boards, subject, sitting, duration, budget, genderPreference].some((item) => item === '' || item === undefined)
+        [leadID, name, fatherName, motherName, email, mobile, alternateNo, address, tutionPlace, studentClass, boards, subject, sitting, duration, budget, genderPreference].some((item) => item === '' || item === undefined)
     ) {
         throw new ApiError(400, 'All fields are required')
     }
@@ -154,22 +142,29 @@ const postRequirement = asyncHandler(async (req, res) => {
 
     var requirementID = leadID.replace('LD', 'RQ')
 
-    const createRequirement = await Requirement.create({
-        leadID,
-        requirementID,
-        employeeCode,
-        tutionPlace,
-        studentClass,
-        boards,
-        subject,
-        sitting,
-        duration,
-        budget,
-        genderPreference
-    })
+    const updateRequirement = await Requirement.updateOne(
+        { leadID: leadID },
+        {
+            tutionPlace: tutionPlace,
+            studentClass: studentClass,
+            sitting: sitting,
+            duration: duration,
+            budget: budget,
+            genderPreference: genderPreference
+        })
 
-    if (!createRequirement) {
-        throw new ApiError(500, 'Requirement creation failed')
+    const updateStudent = await Student.updateOne(
+        { leadID: leadID },
+        {
+            class: studentClass,
+            boards: boards,
+            subjects: subject,
+            fatherName: fatherName,
+            motherName: motherName
+        })
+
+    if (!updateRequirement.acknowledged || !updateStudent.acknowledged) {
+        throw new ApiError(500, 'Requirement update failed')
     }
 
     return res

@@ -11,6 +11,7 @@ const LeadSchema = new Schema({
     },
     employeeCode: {
         type: String,
+        default:null
     },
     mobile: {
         type: String,

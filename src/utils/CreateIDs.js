@@ -1,5 +1,5 @@
 export const genrateLeadID = async () => {
-    const prefix = "OM";
+    const prefix = "OMD";
     const suffix = "LD";
 
     const randomTwoDigit = () => Math.floor(Math.random() * 90 + 10); // 10–99

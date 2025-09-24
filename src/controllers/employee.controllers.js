@@ -1,4 +1,5 @@
 import { Employee } from '../models/employee.model.js'
+import { EmployeeDetails } from '../models/employeeDetails.model.js'
 import { ApiError } from '../utils/ApiError.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
@@ -9,7 +10,7 @@ const genrateAccessAndTokens = async (userId) => {
         const employee = await Employee.findById(userId)
         const accessToken = employee.genrateAccessToken()
 
-        return accessToken 
+        return accessToken
 
     } catch (error) {
         throw new ApiError(500, "Something went wrong while generating refresh and access token")
@@ -35,18 +36,22 @@ const loginEmployee = asyncHandler(async (req, res) => {
         throw new ApiError(401, 'Invalid Credentials')
     }
 
-    const  accessToken  = await genrateAccessAndTokens(findUsername._id)
+    const accessToken = await genrateAccessAndTokens(findUsername._id)
 
     const options = {
         httpOnly: true,
         secure: true
     }
 
+    const employee = await EmployeeDetails.findOne({ employeeUsername: employeeUsername })
+
+    const employeeCode = employee.employeeCode
+
     return res
         .status(200)
         .cookie("accessToken", accessToken, options)
         .json(
-            new ApiResponse(200, { accessToken }, "User logged In Successfully")
+            new ApiResponse(200, { accessToken, employeeCode }, "User logged In Successfully")
         )
 })
 
