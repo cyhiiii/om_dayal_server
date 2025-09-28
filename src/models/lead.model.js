@@ -22,7 +22,7 @@ const LeadSchema = new Schema({
         required: true,
     },
     leadStatus: {
-        type: String,
+        type: [String],
         required: true,
     },
     longitude: {
@@ -40,8 +40,8 @@ const LeadSchema = new Schema({
     alternateNo: {
         type: String,
     },
-    leadDate: {
-        type: Date,
+    leadDates: {
+        type: [Date],
         required: true,
     },
     leadSource: {
@@ -51,7 +51,11 @@ const LeadSchema = new Schema({
     name: {
         type: String,
         required: true,
-    }
+    },
+    report_id:{
+        type:[String],
+        default:[]
+    },
 }, {
     timestamps: true
 })

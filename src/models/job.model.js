@@ -18,8 +18,12 @@ const JobSchema = new Schema({
         type: String,
         required: true,
     },
-    requirementID:{
-        type: String,
+    teacher_id:{
+        type: [String],
+        required: true,
+    },
+    remark:{
+        type: [String],
         required: true,
     }
 })

@@ -27,6 +27,11 @@ const createLead = asyncHandler(async (req, res) => {
             conditions = false
         }
     }
+    var dates = new Date(leadDate)
+    // set time to current time
+    dates.setHours(new Date().getHours())
+    dates.setMinutes(new Date().getMinutes())
+    dates.setSeconds(new Date().getSeconds())
 
     const createLead = await Lead.create({
         leadID,
@@ -38,7 +43,7 @@ const createLead = asyncHandler(async (req, res) => {
         latitude,
         address,
         alternateNo,
-        leadDate,
+        leadDates: dates,
         leadSource,
         name
     })
@@ -120,7 +125,7 @@ const allotLeads = asyncHandler(async (req, res) => {
     return res
         .status(200)
         .json(
-            new ApiResponse(200, { requirementID, studentID }, 'Lead allotted successfully')
+            new ApiResponse(200, { leadID }, 'Lead allotted successfully')
         )
 })
 
@@ -132,12 +137,6 @@ const postRequirement = asyncHandler(async (req, res) => {
         [leadID, name, fatherName, motherName, email, mobile, alternateNo, address, tutionPlace, studentClass, boards, subject, sitting, duration, budget, genderPreference].some((item) => item === '' || item === undefined)
     ) {
         throw new ApiError(400, 'All fields are required')
-    }
-
-    const exisedLead = await Requirement.findOne({ leadID: leadID })
-
-    if (exisedLead) {
-        throw new ApiError(422, 'Requirement with this leadID already exists')
     }
 
     var requirementID = leadID.replace('LD', 'RQ')
@@ -163,7 +162,18 @@ const postRequirement = asyncHandler(async (req, res) => {
             motherName: motherName
         })
 
-    if (!updateRequirement.acknowledged || !updateStudent.acknowledged) {
+    const updateLeads = await Lead.updateOne(
+        { leadID: leadID },
+        {
+            $push: {
+                leadStatus: 'Open',
+                leadDates: new Date()
+            }
+        }
+    );
+
+
+    if (!updateRequirement.acknowledged || !updateStudent.acknowledged || !updateLeads.acknowledged) {
         throw new ApiError(500, 'Requirement update failed')
     }
 
@@ -190,9 +200,65 @@ const getAllLeads = asyncHandler(async (req, res) => {
         )
 })
 
+const searchLeads = asyncHandler(async (req, res) => {
+
+    const { params } = req.params
+
+
+    const leadIDs = await Lead.find({ leadID: { $regex: params, $options: 'i' } })
+
+    if (!leadIDs) {
+        throw new ApiError(404, 'No leads found')
+    }
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, { leadIDs }, 'Leads fetched successfully')
+        )
+
+
+})
+
+const changeLeadStatus = asyncHandler(async (req, res) => {
+
+    const { leadID, leadStatus, leadDates } = req.body
+
+    if (
+        [leadID, leadStatus, leadDates].some((item) => item === '' || item === undefined)
+    ) {
+        throw new ApiError(400, 'All fields are required')
+    }
+
+    const findLead = await Lead.findOne({ leadID: leadID })
+
+    if (!findLead) {
+        throw new ApiError(404, 'Lead not found')
+    }
+
+    var dates = new Date(leadDates)
+    // set time to current time
+    dates.setHours(new Date().getHours())
+    dates.setMinutes(new Date().getMinutes())
+    dates.setSeconds(new Date().getSeconds())
+
+    findLead.leadStatus.push(leadStatus)
+    findLead.leadDates.push(dates)
+    await findLead.save()
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, { leadID }, 'Lead status updated successfully')
+        )
+
+})
+
 export {
     createLead,
     allotLeads,
     postRequirement,
-    getAllLeads
+    getAllLeads,
+    searchLeads,
+    changeLeadStatus
 }
