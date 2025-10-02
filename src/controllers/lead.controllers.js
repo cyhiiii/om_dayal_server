@@ -17,16 +17,17 @@ const createLead = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'All fields are required')
     }
 
-    var leadID = ''
-    var conditions = true
+    var leadID;
+    let isUnique = false;
 
-    while (conditions) {
-        leadID = await genrateLeadID()
-        const existedLeadID = await Lead.findOne({ leadID: leadID })
+    while (!isUnique) {
+        leadID = await genrateLeadID();
+        const existedLeadID = await Lead.findOne({ leadID });
         if (!existedLeadID) {
-            conditions = false
+            isUnique = true;
         }
     }
+
     var dates = new Date(leadDate)
     // set time to current time
     dates.setHours(new Date().getHours())

@@ -1,47 +1,76 @@
-import mongoose,{Schema} from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const TeacherSchema = new Schema({
-    teacher_id:{
+    teacher_id: {
         type: String,
         required: true
     },
-    teacherName:{
+    teacherImage: {
         type: String,
-        required: true
     },
-    teacherEmail:{
+    teacherName: {
         type: String,
-        required: true
     },
-    teacherMobile:{
+    dateOfBirth: {
+        type: Date,
+    },
+    gender: {
         type: String,
-        required: true
     },
-    subject:{
-        type: [String],
-        required: true
+    ratePerClass: {
+        type: String,
     },
-    class:{
-        type: [String],
-        required: true
+    teacherEmail: {
+        type: String,
     },
-    boards:{
-        type: [String],
-        required: true
+    teacherMobile: {
+        type: String,
     },
+    stream: [
+        {
+            subject: {
+                type: String,
+            },
+            class: {
+                type: [String],
+            },
+            boards: {
+                type: [String],
+            },
+        }
+    ],
     longitude: {
         type: String,
-        required: true,
     },
     latitude: {
         type: String,
-        required: true,
     },
     address: {
         type: String,
-        required: true,
-    }
+    },
+    professionalExperience: {
+        type: String,
+    },
+    alternateContact: {
+        type: String,
+    },
+    adharCardNo: {
+        type: String,
+    },
+    adharCardFront: {
+        type: String,
+    },
+    adharCardBack: {
+        type: String,
+    },
+    highestQualificationCertificate: {
+        type: String,
+    },
+    teacherStatus: {
+        type: String,
+        default: 'active'
+    },
 }, {
     timestamps: true
 })
