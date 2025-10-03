@@ -228,7 +228,7 @@ const searchTeachersForLead = asyncHandler(async (req, res) => {
 })
 
 const searchTeachersWithID = asyncHandler(async (req, res) => {
-    const { teacher_id } = req.params;
+    const { teacher_id } = req.query;
 
     if (!teacher_id) {
         throw new ApiError(400, 'Teacher ID is required');
@@ -247,10 +247,35 @@ const searchTeachersWithID = asyncHandler(async (req, res) => {
         )
 })
 
+const updateTeacherStatus = asyncHandler(async (req, res) => {
+
+    const { teacher_id, teacherStatus } = req.body
+
+    if (teacher_id === '' || teacherStatus === '') {
+        throw new ApiError(400, 'Required Fields')
+    }
+
+    const existedTeacher = await Teacher.findOne({ teacher_id: teacher_id })
+
+    if (!existedTeacher) {
+        throw new ApiError(404,'Teacher Missing')
+    }
+
+    existedTeacher.teacherStatus = teacherStatus
+    await existedTeacher.save()
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200,{},'Teacher Status Updated')
+        )
+})
+
 export {
     createTeacher,
     updateTeacherDetails,
     getTeacherDetails,
     searchTeachersForLead,
-    searchTeachersWithID
+    searchTeachersWithID,
+    updateTeacherStatus
 }

@@ -255,11 +255,32 @@ const changeLeadStatus = asyncHandler(async (req, res) => {
 
 })
 
+const getRequirementWithLeadID = asyncHandler(async (req, res) => {
+    const { leadID } = req.params;
+
+    if (!leadID || leadID.trim() === '') {
+        throw new ApiError(400, 'Lead ID is required');
+    }
+
+    const requirement = await Requirement.findOne({ leadID });
+
+    if (!requirement) {
+        throw new ApiError(404, 'Requirement not found');
+    }
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, { requirement }, 'Requirement fetched successfully')
+        );
+})
+
 export {
     createLead,
     allotLeads,
     postRequirement,
     getAllLeads,
     searchLeads,
-    changeLeadStatus
+    changeLeadStatus,
+    getRequirementWithLeadID
 }
