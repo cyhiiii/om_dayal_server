@@ -32,3 +32,22 @@ export const generateTeacherID = () => {
     const id = `${prefix}-${role}/${year}/${randomThreeDigit()}`;
     return id;
 }
+
+export function generateReportId(reportName) {
+  // Extract report type and date from the name
+  // Example: "EODReports-03/10/2025" -> ["EODReports", "03/10/2025"]
+  const parts = reportName.split('-');
+  const reportType = parts[0].replace('Reports', ''); // "EOD", "Teacher", "Lead"
+  const dateStr = parts[1];    // "03/10/2025"
+  
+  // Generate random 3-digit number
+  const randomNum = Math.floor(100 + Math.random() * 900);
+  
+  // Convert date: 03/10/2025 -> 03102025
+  const cleanDate = dateStr.replace(/\//g, '');
+  
+  // Create report ID: EOD123_03102025 or Teacher456_03102025
+  const reportId = `${reportType}${randomNum}_${cleanDate}`;
+  
+  return reportId;
+}

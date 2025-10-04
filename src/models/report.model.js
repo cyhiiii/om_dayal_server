@@ -18,6 +18,10 @@ const ReportSchema = new Schema({
         type: Date,
         required: true
     },
+    reportAbstract:{
+        type:String,
+        required:true
+    },
     leadID:{
         type: String,
         required: true
@@ -29,6 +33,10 @@ const ReportSchema = new Schema({
     supportingDocument:{
         type: [String],
         required: true
+    },
+    view:{
+        type:Boolean,
+        default : false
     }
 }, {
     timestamps: true        
