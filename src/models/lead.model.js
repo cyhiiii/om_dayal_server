@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const LeadSchema = new Schema({
     leadID: {
@@ -60,4 +61,5 @@ const LeadSchema = new Schema({
     timestamps: true
 })
 
+LeadSchema.plugin(mongooseAggregatePaginate)
 export const Lead = mongoose.model('Lead', LeadSchema);

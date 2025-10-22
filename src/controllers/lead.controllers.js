@@ -1,3 +1,4 @@
+import { Job } from '../models/job.model.js'
 import { Lead } from '../models/lead.model.js'
 import { Requirement } from '../models/requirement.model.js'
 import { Student } from '../models/student.model.js'
@@ -275,6 +276,290 @@ const getRequirementWithLeadID = asyncHandler(async (req, res) => {
         );
 })
 
+const getAllLeadsDetails = asyncHandler(async (req, res) => {
+
+    const { leadID } = req.query
+
+    if (leadID === '' || !leadID) {
+        throw new ApiError(400, 'Required Fields')
+    }
+
+    const leads = await Lead.aggregate([
+        // Lookup Student by leadID
+        {
+            $lookup: {
+                from: "students", // Collection name in MongoDB (should be lowercase and plural)
+                localField: "leadID",
+                foreignField: "leadID",
+                as: "student"
+            }
+        },
+        {
+            $unwind: {
+                path: "$student",
+                preserveNullAndEmptyArrays: true // In case some leads have no student
+            }
+        },
+
+        // Lookup Requirement by leadID
+        {
+            $lookup: {
+                from: "requirements",
+                localField: "leadID",
+                foreignField: "leadID",
+                as: "requirement"
+            }
+        },
+        {
+            $unwind: {
+                path: "$requirement",
+                preserveNullAndEmptyArrays: true // In case some leads have no requirement
+            }
+        },
+
+        // Optional: You can project a merged result or just return as is
+        {
+            $project: {
+                _id: 0,
+                leadID: 1,
+                email: 1,
+                employeeCode: 1,
+                mobile: 1,
+                leadType: 1,
+                leadStatus: 1,
+                longitude: 1,
+                latitude: 1,
+                address: 1,
+                alternateNo: 1,
+                leadDates: 1,
+                leadSource: 1,
+                name: 1,
+                report_id: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                // Student Fields
+                studentID: "$student.studentID",
+                studentName: "$student.name",
+                studentEmail: "$student.email",
+                studentAddress: "$student.address",
+                class: "$student.class",
+                boards: "$student.boards",
+                subjects: "$student.subjects",
+                fatherName: "$student.fatherName",
+                motherName: "$student.motherName",
+                parentContact: "$student.parentContact",
+                studentAlternateNumber: "$student.alternateNumber",
+                // Requirement Fields
+                requirementID: "$requirement.requirementID",
+                reqEmployeeCode: "$requirement.employeeCode",
+                tutionPlace: "$requirement.tutionPlace",
+                studentClass: "$requirement.studentClass",
+                sitting: "$requirement.sitting",
+                duration: "$requirement.duration",
+                budget: "$requirement.budget",
+                genderPreference: "$requirement.genderPreference"
+            }
+        }
+    ]);
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, { lead: leads[0] }, 'Leads Details')
+        )
+})
+
+const updateLeadsExcel = asyncHandler(async (req, res) => {
+
+    const { leadsData } = req.body
+
+    if (leadsData.length === 0) {
+        throw new ApiError(400, 'Empty Excel')
+    }
+
+    leadsData.forEach(async (element) => {
+        var leadID;
+        let isUnique = false;
+
+        while (!isUnique) {
+            leadID = await genrateLeadID();
+            const existedLeadID = await Lead.findOne({ leadID });
+            if (!existedLeadID) {
+                isUnique = true;
+            }
+        }
+        /*
+        
+address
+: 
+"New Garia, Near Eden flora Complex"
+alternateNo
+: 
+"9051224629"
+boards
+: 
+"CBSE"
+budget
+: 
+"Will be discussed after Demo class"
+class
+: 
+"11"
+duration
+: 
+"1hour 30minutes"
+email
+: 
+"Nil"
+employeeCode
+: 
+"OMD08"
+fatherName
+: 
+"Nil"
+genderPreference
+: 
+"No"
+leadDates
+: 
+(2) [Mon Sep 22 2025 05:30:00 GMT+0530 (India Standard Time), Mon Sep 22 2025 05:30:00 GMT+0530 (India Standard Time)]
+leadSource
+: 
+"third party"
+leadStatus
+: 
+(2) ['New', 'Open']
+leadType
+: 
+"New"
+mobile
+: 
+"9051224629"
+motherName
+: 
+"Nil"
+name
+: 
+"Pranab Mondal"
+sitting
+: 
+"1"
+studentClass
+: 
+"11"
+subjects
+: 
+"Math,Physics"
+teacherName
+: 
+['Nil']
+tutionPlace
+        */
+
+        const createLead = await Lead.create({
+            leadID: leadID,
+            email: element.email,
+            employeeCode: element.employeeCode,
+            mobile: element.mobile,
+            leadType: element.leadType,
+            leadStatus: element.leadStatus,
+            longitude: element.longitude || '',
+            latitude: element.latitude || '',
+            address: element.address,
+            alternateNo: element.alternateNo,
+            leadDates: element.leadDates,
+            leadSource: element.leadSource,
+            name: element.name,
+        })
+
+        createRequirement = await Requirement.create({
+            leadID: leadID,
+            requirementID: leadID.replace('LD', 'RQ'),
+            employeeCode: element.employeeCode,
+            tutionPlace: element.tutionPlace,
+            studentClass: element.studentClass,
+            sitting: element.sitting,
+            duration: element.duration,
+            budget: element.budget,
+            genderPreference: element.genderPreference,
+        })
+
+        const createStudents = await Student.create({
+            leadID: leadID,
+            studentID: leadID.replace('LD', 'SL'),
+            name: element.name,
+            email: element.email,
+            address: element.address,
+            class: element.class,
+            boards: element.boards,
+            subjects: element.subjects,
+            fatherName: element.fatherName,
+            motherName: element.motherName,
+            parentContact: element.parentContact,
+            alternateNumber: element.alternateNumber,
+        })
+
+        const createJob = await Job.create({
+            leadID: '',
+            jobID: '',
+            employeeCode: '',
+            jobTitle: '',
+            studentID: '',
+            teacher_id: '',
+            remark: '',
+        })
+
+    });
+})
+
+const updateRequirement = asyncHandler(async (req, res) => {
+    const { leadID, name, fatherName, motherName, email, mobile, alternateNo, address, tutionPlace, studentClass, boards, subjects, sitting, duration, budget, genderPreference } = req.body
+
+    if (
+        [name, fatherName, motherName, email, mobile, alternateNo, address, tutionPlace, studentClass, boards, subjects, sitting, duration, budget, genderPreference].some(item => item.trim() === '' || item === undefined)
+    ) {
+        throw new ApiError(400, 'Required Inputs')
+    }
+
+    const updateRequirement = await Requirement.updateOne(
+        { leadID: leadID },
+        {
+            tutionPlace: tutionPlace,
+            studentClass: studentClass,
+            sitting: sitting,
+            duration: duration,
+            budget: budget,
+            genderPreference: genderPreference
+        }
+    )
+
+    const updateStudent = await Student.updateOne(
+        { leadID: leadID },
+        {
+            name: name,
+            class: studentClass,
+            boards: boards,
+            subjects: subjects,
+            fatherName: fatherName,
+            motherName: motherName,
+            email: email,
+            mobile: mobile,
+            alternateNo: alternateNo,
+            address: address,
+        }
+    )
+
+    if (!updateStudent.acknowledged || !updateRequirement) {
+        throw new ApiError(500, 'Update Failed')
+    }
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, {}, 'Updated Requirement Successfully')
+        )
+})
+
 export {
     createLead,
     allotLeads,
@@ -282,5 +567,8 @@ export {
     getAllLeads,
     searchLeads,
     changeLeadStatus,
-    getRequirementWithLeadID
+    getRequirementWithLeadID,
+    updateLeadsExcel,
+    getAllLeadsDetails,
+    updateRequirement
 }

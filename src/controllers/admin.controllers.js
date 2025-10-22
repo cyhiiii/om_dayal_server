@@ -384,7 +384,7 @@ const updateEmployeeDetails = asyncHandler(async (req, res) => {
         }
     })
 
-    const findEmployee = await EmployeeDetails.findOne({ employeeCode: employeeCode , employeeUsername:employeeUsername })
+    const findEmployee = await EmployeeDetails.findOne({ employeeCode: employeeCode, employeeUsername: employeeUsername })
 
     if (!findEmployee) {
         throw new ApiError(404, 'Employee Not Found')
@@ -404,7 +404,7 @@ const updateEmployeeDetails = asyncHandler(async (req, res) => {
             });
     }
 
-    filesName.forEach(async(element) => {
+    filesName.forEach(async (element) => {
         if (filesToSaved[element] !== '') {
             await removeFromCloudinary(findEmployee[element]).then(async (res) => {
                 if (res.result === 'ok') {
@@ -433,6 +433,46 @@ const updateEmployeeDetails = asyncHandler(async (req, res) => {
         )
 })
 
+const changePassword = asyncHandler(async (req, res) => {
+
+    const { username, password, newPassword, confirmPassword } = req.body
+
+    if (
+        [username, password, newPassword, confirmPassword].some(item => item?.trim() === '' || !item)
+    ) {
+        throw new ApiError(400, 'Required Inputs')
+    }
+
+    if (newPassword!==confirmPassword) {
+        throw new ApiError(403,'Password Mismatch')
+    }
+
+    const admin = await Admin.findById(req.admin._id)
+
+    if (!admin) {
+        throw new ApiError(401, 'Unauthorised Access')
+    }
+
+    if (!(admin.username === username)) {
+        throw new ApiError(409, 'UserID Mismatched')
+    }
+
+    const isPasswordValid = await admin.isPasswordCorrect(password)
+
+    if (!isPasswordValid) {
+        throw new ApiError(409, "Invalid Old Password")
+    }
+
+    admin.password = newPassword
+    admin.save({ validateBeforeSave: true })
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, {}, 'Password Changed Successfully')
+        )
+})
+
 export {
     loginAdmin,
     adminLogout,
@@ -441,5 +481,6 @@ export {
     releaseEmployee,
     refreshAccessToken,
     getEmployeesDetails,
-    updateEmployeeDetails
+    updateEmployeeDetails,
+    changePassword
 }

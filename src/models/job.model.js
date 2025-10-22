@@ -1,28 +1,32 @@
-import mongoose,{Schema} from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const JobSchema = new Schema({
-    jobID:{
+    leadID: {
         type: String,
         required: true
     },
-    employeeCode:{
+    jobID: {
+        type: String,
+        required: true
+    },
+    employeeCode: {
         type: String,
         required: true,
     },
-    jobTitle:{
+    jobTitle: {
         type: String,
         required: true,
     },
-    studentID:{
+    studentID: {
         type: String,
         required: true,
     },
-    teacher_id:{
+    teacher_id: {
         type: [String],
         required: true,
     },
-    remark:{
+    remark: {
         type: [String],
         required: true,
     }

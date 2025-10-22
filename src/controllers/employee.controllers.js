@@ -72,10 +72,68 @@ const logoutEmployee = asyncHandler(async (req, res) => {
 
 const changePassword = asyncHandler(async (req, res) => {
 
+    const { employeeUsername, password, newPassword, confirmPassword } = req.body
+
+    if (
+        [employeeUsername, password, newPassword, confirmPassword].some(item => item?.trim() === '' || !item)
+    ) {
+        throw new ApiError(400, 'Required Inputs')
+    }
+
+    if (newPassword !== confirmPassword) {
+        throw new ApiError(403, 'Password Mismatch')
+    }
+
+    const employee = await Employee.findById(req.employee._id)
+
+    if (!employee) {
+        throw new ApiError(401, 'Unauthorised Request')
+    }
+
+    if (!(employee.employeeUsername === employeeUsername)) {
+        throw new ApiError(409, 'Wrong Credentials')
+    }
+
+    const isPasswordValid = await employee.isPasswordCorrect(password)
+
+    if (!isPasswordValid) {
+        throw new ApiError(409, 'Wrong Credentials')
+    }
+
+    employee.password = newPassword
+    employee.save({ validateBeforeSave: true })
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, {}, 'Password Changed Successfully')
+        )
+})
+
+const getEmployeeDetails = asyncHandler(async (req, res) => {
+
+    const { employeeCode } = req.query
+
+    if (!employeeCode) {
+        throw new ApiError(400, 'Required Inputs')
+    }
+
+    const findEmployee = await EmployeeDetails.findOne({ employeeCode: employeeCode })
+
+    if (!findEmployee) {
+        throw new ApiError(404, 'Employee Not Found')
+    }
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, { findEmployee }, 'Employee Data')
+        )
 })
 
 export {
     loginEmployee,
     logoutEmployee,
     changePassword,
+    getEmployeeDetails
 }

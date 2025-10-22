@@ -4,7 +4,8 @@ import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 const TeacherSchema = new Schema({
     teacher_id: {
         type: String,
-        required: true
+        required: true,
+        unique:true
     },
     teacherImage: {
         type: String,
@@ -71,6 +72,12 @@ const TeacherSchema = new Schema({
         type: String,
         default: 'active'
     },
+    qualification: {
+        type: String,
+    },
+    aboutYourself: {
+        type: String
+    }
 }, {
     timestamps: true
 })

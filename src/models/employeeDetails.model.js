@@ -60,6 +60,12 @@ const EmployeeDetailsSchema = new Schema({
     },
     dateOfLeave: {
         type: Date,
+    },
+    workDates: {
+        type: [Date]
+    },
+    sessionsType: {
+        type: [String]
     }
 },
     {

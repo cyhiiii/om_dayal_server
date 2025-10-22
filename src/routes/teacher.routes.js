@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { verifyJWT, employeeVerifyJWT } from '../middlewares/auth.middlewares.js'
-import { createTeacher, getTeacherDetails, searchTeachersForLead, searchTeachersWithID, updateTeacherDetails, updateTeacherStatus } from "../controllers/teacher.controllers.js";
+import { createTeacher, getTeacherDetails, searchTeachersForLead, searchTeachersWithID, updateTeacherDetails, updateTeacherExcel, updateTeacherStatus } from "../controllers/teacher.controllers.js";
 import { upload } from '../middlewares/multer.middlewares.js'
 
 const router = Router();
@@ -29,10 +29,10 @@ router.route('/updateTeacher').put(verifyJWT,
 router.route('/getTeacherDetails').get(verifyJWT, getTeacherDetails)
 router.route('/searchTeachersForLead').get(verifyJWT, searchTeachersForLead)
 router.route('/searchTeachersWithID').get(verifyJWT, searchTeachersWithID)
-router.route('/updateTeacherStatus').put(verifyJWT,updateTeacherStatus)
+router.route('/updateTeacherStatus').put(verifyJWT, updateTeacherStatus)
+router.route('/excelUpdate').post(verifyJWT, updateTeacherExcel)
 
 //Employee Routes
-
 
 router.route('/addTeacherEmployee').post(employeeVerifyJWT,
     upload.fields([
@@ -55,7 +55,7 @@ router.route('/updateTeacherEmployee').put(employeeVerifyJWT,
 router.route('/getTeacherDetailsEmployee').get(employeeVerifyJWT, getTeacherDetails)
 router.route('/searchTeachersForLeadEmployee').get(employeeVerifyJWT, searchTeachersForLead)
 router.route('/searchTeachersWithIDEmployee').get(employeeVerifyJWT, searchTeachersWithID)
-router.route('/updateTeacherStatusEmployee').put(employeeVerifyJWT,updateTeacherStatus)
+router.route('/updateTeacherStatusEmployee').put(employeeVerifyJWT, updateTeacherStatus)
 
 
 export default router;

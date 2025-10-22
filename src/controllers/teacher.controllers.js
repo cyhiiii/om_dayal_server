@@ -258,7 +258,7 @@ const updateTeacherStatus = asyncHandler(async (req, res) => {
     const existedTeacher = await Teacher.findOne({ teacher_id: teacher_id })
 
     if (!existedTeacher) {
-        throw new ApiError(404,'Teacher Missing')
+        throw new ApiError(404, 'Teacher Missing')
     }
 
     existedTeacher.teacherStatus = teacherStatus
@@ -267,8 +267,68 @@ const updateTeacherStatus = asyncHandler(async (req, res) => {
     return res
         .status(200)
         .json(
-            new ApiResponse(200,{},'Teacher Status Updated')
+            new ApiResponse(200, {}, 'Teacher Status Updated')
         )
+})
+
+const updateTeacherExcel = asyncHandler(async (req, res) => {
+
+    const { cleanedData } = req.body
+    throw new ApiError(500, 'Forced Stop Ask Developer')
+
+    if (cleanedData.length === 0) {
+        throw new ApiError(400, 'Empty Excel')
+    }
+
+    try {
+        for (let index = 0; index < cleanedData.length; index++) {
+            const value = cleanedData[index]
+
+            var createTeacherID;
+            let isUnique = false;
+
+            while (!isUnique) {
+                createTeacherID = generateTeacherID();
+                const existedTeacherWithID = await Teacher.findOne({ teacher_id: createTeacherID });
+                if (!existedTeacherWithID) {
+                    isUnique = true;
+                }
+            }
+
+            const createTeacher = await Teacher.create({
+                teacher_id: createTeacherID,
+                teacherImage: value.teacherImage,
+                teacherName: value.teacherName,
+                dateOfBirth: value.dateOfBirth,
+                gender: value.gender,
+                ratePerClass: value.ratePerClass,
+                teacherEmail: value.teacherEmail,
+                teacherMobile: value.teacherMobile,
+                stream: value.stream,
+                longitude: value.longitude,
+                latitude: value.latitude,
+                address: value.address,
+                professionalExperience: value.professionalExperience,
+                alternateContact: value.alternateContact,
+                adharCardNo: value.adharCardNo,
+                adharCardFront: value.adharCardFront,
+                adharCardBack: value.adharCardBack,
+                highestQualificationCertificate: value.highestQualificationCertificate,
+                qualification: value.qualification,
+                aboutYourself: value.aboutYourself,
+            })
+
+            if (!createTeacher) {
+                throw new ApiError(501, 'Data Not Created')
+            }
+
+        }
+
+    } catch (error) {
+        throw new ApiError(500, `${error}`)
+    }
+
+
 })
 
 export {
@@ -277,5 +337,6 @@ export {
     getTeacherDetails,
     searchTeachersForLead,
     searchTeachersWithID,
-    updateTeacherStatus
+    updateTeacherStatus,
+    updateTeacherExcel,
 }
