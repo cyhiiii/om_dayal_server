@@ -4,7 +4,8 @@ import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 const InvoiceSchema = new Schema({
     invoice_no: {
         type: String,
-        required: true
+        required: true,
+        unique:true
     },
     leadID: {
         type: String,

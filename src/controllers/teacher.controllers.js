@@ -5,6 +5,7 @@ import { removeFromCloudinary, uploadOnCloudinary } from '../utils/cloudinary.js
 import { Teacher } from '../models/teacher.model.js';
 import { generateTeacherID } from '../utils/CreateIDs.js';
 import { Lead } from '../models/lead.model.js';
+import { Job } from '../models/job.model.js';
 
 
 const haversineDistance = (lat1, lon1, lat2, lon2) => {
@@ -331,6 +332,32 @@ const updateTeacherExcel = asyncHandler(async (req, res) => {
 
 })
 
+const commentTeacher = asyncHandler(async (req, res) => {
+    const { leadID, teacher_id, remark } = req.body
+
+    if (
+        [leadID, teacher_id, remark].some(item => item === '' || !item)
+    ) {
+        throw new ApiError(400, 'Required Inputs')
+    }
+
+    const findJOB = await Job.findOne({ leadID: leadID })
+
+    if (!findJOB) {
+        throw new ApiError(404,'Job Not Found')
+    }
+
+    const findTeacherIndex = (findJOB.teacher_id).indexOf(teacher_id)
+    findJOB.remark[findTeacherIndex] = remark
+    findJOB.save()
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200,{},'Teacher Remark Given')
+    )
+})
+
 export {
     createTeacher,
     updateTeacherDetails,
@@ -339,4 +366,5 @@ export {
     searchTeachersWithID,
     updateTeacherStatus,
     updateTeacherExcel,
+    commentTeacher
 }

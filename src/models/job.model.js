@@ -14,10 +14,6 @@ const JobSchema = new Schema({
         type: String,
         required: true,
     },
-    jobTitle: {
-        type: String,
-        required: true,
-    },
     studentID: {
         type: String,
         required: true,

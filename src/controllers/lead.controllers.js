@@ -117,10 +117,19 @@ const allotLeads = asyncHandler(async (req, res) => {
         alternateNumber: findLead.alternateNo
     })
 
+    const createJob = await Job.create({
+        leadID: leadID,
+        jobID: leadID.replace('LD', 'JO'),
+        employeeCode: employeeCode,
+        studentID: studentID,
+        teacher_id: [],
+        remark: [],
+    })
+
     findLead.employeeCode = employeeCode
     findLead.save()
 
-    if (!createRequirement || !createStudent) {
+    if (!createRequirement || !createStudent || !createJob) {
         throw new ApiError(500, 'Allotment failed')
     }
 
@@ -560,6 +569,33 @@ const updateRequirement = asyncHandler(async (req, res) => {
         )
 })
 
+const assignTeachers = asyncHandler(async (req, res) => {
+    const { leadID, teacher_id } = req.body
+
+    if (
+        [leadID, teacher_id].some(item => item === '' || !item)
+    ) {
+        throw new ApiError(400, 'Required Inputs')
+    }
+
+    const findJOB = await Job.findOne({ leadID: leadID })
+
+    if (!findJOB) {
+        throw new ApiError(404, 'Job ID not found')
+    }
+
+    findJOB.teacher_id.push(teacher_id)
+    findJOB.remark.push('')
+    findJOB.save()
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200,{},'Teacher Assigned Successfully')
+    )
+})
+
+
 export {
     createLead,
     allotLeads,
@@ -570,5 +606,6 @@ export {
     getRequirementWithLeadID,
     updateLeadsExcel,
     getAllLeadsDetails,
-    updateRequirement
+    updateRequirement,
+    assignTeachers
 }
