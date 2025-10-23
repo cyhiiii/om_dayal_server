@@ -24,7 +24,7 @@ router.route('/searchEmplLeads/:params').get(employeeVerifyJWT, searchLeads)
 router.route('/changeEmplLeadStatus').put(employeeVerifyJWT, changeLeadStatus)
 router.route('/getLeadsAllDataEmployee').get(employeeVerifyJWT, getAllLeadsDetails)
 router.route('/updateRequirementEmployee').put(employeeVerifyJWT, updateRequirement)
-router.route('/assignTeacherEmployeee').put(employeeVerifyJWT, assignTeachers)
+router.route('/assignTeacherEmployee').put(employeeVerifyJWT, assignTeachers)
 
 
 export default router
