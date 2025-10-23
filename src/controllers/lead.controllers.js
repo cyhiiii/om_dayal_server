@@ -2,6 +2,7 @@ import { Job } from '../models/job.model.js'
 import { Lead } from '../models/lead.model.js'
 import { Requirement } from '../models/requirement.model.js'
 import { Student } from '../models/student.model.js'
+import { Teacher } from '../models/teacher.model.js'
 import { ApiError } from '../utils/ApiError.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
@@ -578,6 +579,12 @@ const assignTeachers = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'Required Inputs')
     }
 
+    const teacher = await Teacher.findOne({ teacher_id: teacher_id })
+
+    if (!teacher) {
+        throw new ApiError(403, 'Teacher Not Found')
+    }
+
     const findJOB = await Job.findOne({ leadID: leadID })
 
     if (!findJOB) {
@@ -589,10 +596,10 @@ const assignTeachers = asyncHandler(async (req, res) => {
     findJOB.save()
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(200,{},'Teacher Assigned Successfully')
-    )
+        .status(200)
+        .json(
+            new ApiResponse(200, {}, 'Teacher Assigned Successfully')
+        )
 })
 
 
