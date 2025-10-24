@@ -140,7 +140,7 @@ const cancelReceiptOrInvoice = asyncHandler(async (req, res) => {
 
     var jsonData = JSON.parse(formData)
 
-    if (!jsonData._id || jsonData.type) {
+    if (!jsonData._id || !jsonData.type) {
         throw new ApiError(400, 'Required Input')
     }
 
