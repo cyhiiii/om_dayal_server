@@ -602,7 +602,6 @@ const assignTeachers = asyncHandler(async (req, res) => {
         )
 })
 
-
 export {
     createLead,
     allotLeads,
