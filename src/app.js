@@ -5,7 +5,7 @@ import cookieParser from "cookie-parser"
 const app = express()
 
 app.use(cors({
-    origin:'https://om-dayal-client.vercel.app'
+    origin:(process.env.ORIGIN).split(',')
 }))
 
 app.use(express.json({ limit: "1mb" }))
