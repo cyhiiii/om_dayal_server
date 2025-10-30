@@ -4,8 +4,30 @@ import cookieParser from "cookie-parser"
 
 const app = express()
 
+// Validate and configure CORS
+const configureCors = () => {
+    const origin = process.env.ORIGIN;
+    
+    if (!origin) {
+        console.warn('⚠️  Warning: ORIGIN environment variable is not set. Using wildcard (*)');
+        return '*';
+    }
+    
+    if (origin.trim() === '') {
+        console.warn('⚠️  Warning: ORIGIN environment variable is empty. Using wildcard (*)');
+        return '*';
+    }
+    
+    if (origin === '*') {
+        return '*';
+    }
+    
+    // Split comma-separated origins and trim whitespace
+    return origin.split(',').map(o => o.trim()).filter(o => o.length > 0);
+}
+
 app.use(cors({
-    origin: process.env.ORIGIN === '*' ? '*' : process.env.ORIGIN.split(','),
+    origin: configureCors(),
     credentials: true
 }))
 
