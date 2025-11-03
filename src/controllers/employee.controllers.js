@@ -40,7 +40,8 @@ const loginEmployee = asyncHandler(async (req, res) => {
 
     const options = {
         httpOnly: true,
-        secure: true
+        secure: true,
+        sameSite: 'none'
     }
 
     const employee = await EmployeeDetails.findOne({ employeeUsername: employeeUsername })
@@ -58,7 +59,8 @@ const loginEmployee = asyncHandler(async (req, res) => {
 const logoutEmployee = asyncHandler(async (req, res) => {
     const options = {
         httpOnly: true,
-        secure: true
+        secure: true,
+        sameSite: 'none'
     }
 
     return res

@@ -9,17 +9,18 @@ const configureCors = () => {
     const origin = process.env.ORIGIN;
     
     if (!origin) {
-        console.warn('⚠️  Warning: ORIGIN environment variable is not set. Using wildcard (*)');
-        return '*';
+        console.warn('⚠️  Warning: ORIGIN environment variable is not set. Allowing all origins with credentials.');
+        return true; // Allow all origins dynamically
     }
     
     if (origin.trim() === '') {
-        console.warn('⚠️  Warning: ORIGIN environment variable is empty. Using wildcard (*)');
-        return '*';
+        console.warn('⚠️  Warning: ORIGIN environment variable is empty. Allowing all origins with credentials.');
+        return true;
     }
     
     if (origin === '*') {
-        return '*';
+        // When credentials are needed, we can't use '*', so we use a function to allow all origins
+        return true;
     }
     
     // Split comma-separated origins and trim whitespace
@@ -28,7 +29,10 @@ const configureCors = () => {
 
 app.use(cors({
     origin: configureCors(),
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+    exposedHeaders: ['Set-Cookie']
 }))
 
 app.use(express.json({ limit: "1mb" }))
